@@ -1,4 +1,4 @@
-iNatQuery <- function(request_type, api_version, endpoint, api_key, body = NULL, ...) {
+iNatAPI <- function(request_type, api_version, endpoint, api_key, body = NULL, ...) {
     
     require(httr)
     
@@ -47,7 +47,7 @@ iNatQuery <- function(request_type, api_version, endpoint, api_key, body = NULL,
         # Bad request type
     }
     
-    # Add the content in dataframe form to the response object
+    # Add the content in convenience dataframe form to the response object
     response$data <- jsonlite::fromJSON(content(response, as = "text"))
     
     # Return the response object, use content(response), to access content
