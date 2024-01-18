@@ -1,4 +1,4 @@
-iNatAPI <- function(request_type, api_version, endpoint, api_key, body = NULL, ...) {
+iNatAPI <- function(request_type, api_version, endpoint, api_key = NULL, body = NULL, ...) {
     
     require(httr)
     
