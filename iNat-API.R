@@ -11,16 +11,16 @@ iNatAPI <- function(request_type, api_version, endpoint, api_key, body = NULL, .
     # Prepend the API version to the endpoint
     endpoint <- paste(api_version, endpoint, sep = "/")
     
-    # check Internet connection
+    # Check for an internet connection
     if (!curl::has_internet()) {
-        message("No Internet connection.")
-        return(invisible(NULL))
+        message("API request failed. No internet connection.")
+        return()
     }
 
-    # check that iNat can be reached
-    if (httr::http_error(base_url)) { # TRUE: 400 or above
-        message("iNaturalist API is unavailable.")
-        return(invisible(NULL))
+    # Check that the API url is reachable
+    if (httr::http_error(base_url)) {
+        message("API request failed. The iNaturalist API cannot be reached.")
+        return()
     }
     
     # Add HTTP headers
@@ -50,6 +50,42 @@ iNatAPI <- function(request_type, api_version, endpoint, api_key, body = NULL, .
     # Add the content in convenience dataframe form to the response object
     response$data <- jsonlite::fromJSON(content(response, as = "text"))
     
+    # Attempt to un-nest the dataframe, if possible. 
+    # Will only work with one nesting
+    if (!is.null(response$data$results)) {
+        tryCatch({
+            response$results <- do.call(data.frame, response$data$results)
+        }, error = function(cond){})
+    }
+    
     # Return the response object, use content(response), to access content
     return(response)
+}
+
+# Convenience function to turn nested R lists to RISON strings for API V2
+# Example: toRISON(list("count", "user" = list("login", "name"))) returns
+# "(count:!t,user:(login:!t,name:!t))"
+# See: https://api.inaturalist.org/v2/docs/
+toRISON <- function(list) {
+    str <- c()
+    
+    # Iterate over the list
+    for (i in 1:length(list)) {
+        
+        # Get key/value pair for list
+        key <- ifelse(names(list)[i] == "" || is.null(names(list)), i, names(list)[i])
+        val <- list[[key]]
+        
+        # If the value is character, add it
+        if (typeof(val) == "character") {
+            str <- c(str, paste0(val, ":!t"))
+            
+        # If value is a list, recurse
+        } else if (typeof(val) == "list") {
+            str <- c(str, paste0(key, ":", toRISON(val)))
+        }
+    }
+    
+    # Return formatted RISON
+    return(paste0("(", paste(str, collapse = ","), ")"))
 }
