@@ -24,6 +24,8 @@ api_token <- ""
 # First test: see if you are logged in
 out <- iNatAPI("GET", "v1", "users/me", api_token)
 content(out) # Converts the JSON output to an R object
+out$data
+out$results
 
 # Get Flora of Oregon project details
 out <- iNatAPI("GET", "v1", "projects/168279", api_token)
@@ -34,9 +36,9 @@ project_users <- out$data$results$user_ids
 # Get project members
 out <- iNatAPI("GET", "v1", "projects/168279/members", api_token, 
     per_page = 200)
-out$data$results
+
 # Dataframe of members
-do.call(data.frame, out$data$results) %>% 
+out$results %>% 
     select(role, user.id, user.login, user.name, join_date = created_at)
 
 # Send a message to a user
@@ -52,8 +54,14 @@ out
 # Get top 500 observers for the project
 out <- iNatAPI("GET", "v1", "observations/observers", api_token, 
     captive = "false", project_id = 168279)
-out$data$results %>% do.call(data.frame, .) %>% 
+out$results %>%
     select(user_id, observation_count, species_count, user.login, user.name)
+
+# Get top 500 identifiers for the project
+fields = toRISON(list("count", "user" = list("login", "name")))
+out <- iNatAPI("GET", "v2", "observations/identifiers", api_token, 
+    project_id = 168279, fields = fields)
+out$results
 
 # Get top identifiers with v1 API
 out <- iNatAPI("GET", "v1", "identifications/identifiers", api_token, 
