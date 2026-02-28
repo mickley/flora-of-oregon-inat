@@ -8,7 +8,7 @@ source("iNat-API.R") # Our iNaturalist API wrapper function
 # https://www.inaturalist.org/users/api_token
 
 # Paste API token from line above here
-api_token <- ""
+api_token <- "eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjo2NjUwLCJleHAiOjE3MDU2MjkxNTF9.J0WwXtbkaK9YNLXD_i5oRphZDlnOQi_GvLYvkL7cXRuC5jtynB1PbCP-3h2Rizhsjos0aFt92w692AFYvYE1MQ"
 
 ##### iNat API wrapper syntax #####
 
@@ -37,8 +37,10 @@ project_users <- out$data$results$user_ids
 out <- iNatAPI("GET", "v1", "projects/168279/members", api_token, 
     per_page = 200)
 
+out$results %>% select(created_at, role, user.id, user.login, user.name)
+
 # Dataframe of members
-out$results %>% 
+members <- out$results %>% 
     select(role, user.id, user.login, user.name, join_date = created_at)
 
 # Send a message to a user
@@ -54,8 +56,16 @@ out
 # Get top 500 observers for the project
 out <- iNatAPI("GET", "v1", "observations/observers", api_token, 
     captive = "false", project_id = 168279)
-out$results %>%
+observers <- out$results %>%
     select(user_id, observation_count, species_count, user.login, user.name)
+
+observers %>% filter(observation_count > 500) %>% pull(observation_count) %>% sum
+
+# Top observers who haven't joined
+observers %>% 
+    left_join(members %>% select(user.login, join_date)) %>% 
+    filter(is.na(join_date)) %>% 
+    write.csv("observers.csv")
 
 # Get top 500 identifiers for the project
 fields = toRISON(list("count", "user" = list("login", "name")))
@@ -76,3 +86,101 @@ out <- iNatAPI("GET", "v2", "identifications/identifiers", api_token,
     is_change = "false", per_page=100,
     fields = "(count:!t,user:(login:!t,name:!t))")
 out$data$results %>% do.call(data.frame, .)
+
+
+# Get project members
+out <- iNatAPI("GET", "v1", "observations", api_token, project_id = 168279,
+    per_page = 2, geoprivacy = "obscured", user_login = "sedgequeen")
+
+(out$data$results$non_traditional_projects[[1]])$project_user.prefers_curator_coordinate_access_for
+
+
+private_geojson.type
+private_geojson.coordinates 
+obscured = true
+geoprivacy = obscured
+private_location
+
+test <- c("jessicalodwick", "mickley")
+
+get_users("jessicalodwick")
+
+
+fields = toRISON(list("count", "taxon" = list("id"), 
+    "default_photo" = list("url"), "is_active", "name", 
+    "preferred_common_name", "rank", "rank_level"))
+
+# Fields doesn't work with api v2, but order works with v1, though not documented
+out <- iNatAPI("GET", "v1", "observations/species_counts", api_token, 
+    project_id = 168279, order = "asc", hrank = "species", 
+    per_page=500, page = 5)
+
+out$results %>% pull(count)
+
+
+#Get the identifiers not in the top 500 observers
+
+out <- iNatAPI("GET", "v1", "observations/observers", api_token, 
+               captive = "false", project_id = 168279)
+observers <- out$results %>%
+    select(user_id, observation_count, species_count, user.login, user.name)
+
+
+fields = toRISON(list("count", "user" = list("login", "name")))
+out <- iNatAPI("GET", "v2", "observations/identifiers", api_token, 
+               project_id = 168279, fields = fields)
+identifiers <- out$results
+
+identifiers %>% 
+    left_join(observers) %>%
+    filter(is.na(observation_count) | observation_count < 500) %>% 
+    
+    # Get rid of <NA> usernames
+    mutate(user.name = ifelse(is.na(user.name), "", user.name)) %>%
+    
+    select(-user_id, -species_count) %>%
+    write.csv("identifiers.csv")
+
+
+######### Tracking observations in project #########
+
+# Get project members
+members <- data.frame()
+for (i in 1:2) {
+    out <- iNatAPI("GET", "v2", "projects/168279/members", api_token, 
+                   per_page = 100, page = i, fields="all")
+    members <- rbind(members, out$results)
+}
+
+# Dataframe of members
+members <- members %>% 
+    select(role, user.id, user.login, user.name, join_date = created_at)
+
+members
+
+# Get top observers for the project
+fields = toRISON(list("observation_count", "species_count", 
+                      "user" = list("id", "login", "name", "roles")))
+out <- iNatAPI("GET", "v2", "observations/observers", api_token, 
+               captive = "false", project_id = 168279, fields = fields, per_page = 500)
+observers <- out$results
+observers 
+
+# Total observations by project members
+members %>%
+    left_join(observers) %>% 
+    filter(!is.na(observation_count)) %>% 
+    pull(observation_count) %>%
+    sum()
+
+# Total observations by non-project members
+observers %>% 
+    left_join(members) %>% 
+    filter(is.na(join_date)) %>%
+    select(user.name, user.login, observation_count) %>%
+    filter(observation_count > 500) %>%
+    pull(observation_count) %>%
+    sum()
+
+
+
