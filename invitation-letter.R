@@ -38,7 +38,7 @@ To join the project, visit the [project page](https://www.inaturalist.org/projec
 Sincerely,
 	", your_name, ", for
 
-* **The iNat Flora of Oregon Team (@mickley, @twainwright, @wisel, @ribes2018, and members of the Native Plant Society of Oregon and OregonFlora)**")
+* **The iNat Flora of Oregon Team (@mickley, @twainwright, @ribes2018, @isaacsandlin, @lindahardison, @wisel,and members of the Native Plant Society of Oregon, OregonFlora, and Oregon Department of Agriculture)**")
 
 ##################################################
 
