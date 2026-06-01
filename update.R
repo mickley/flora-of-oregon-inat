@@ -9,10 +9,60 @@ source("iNat-API.R") # Our iNaturalist API wrapper function
 # https://www.inaturalist.org/users/api_token
 
 # Paste API token from line above here
-api_token <- "eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjo2NjUwLCJleHAiOjE3NjI1NDQwMTR9.FdwFk0EKVYNDsAUc3TbkpALoPezeGqBElktIh5leSDndGPKH6v2Xc7iXnh6MOIshuNqM1l-OFpN7zLWDvoyYPQ"
+api_token <- "eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjo2NjUwLCJleHAiOjE3ODA0MjcwMzF9.C2V7PfWCbgNEDmXfraXtuTd8dXIpH2OUO8QL61lnOOFb-kRghs_EdiloaZUxLoa9Ps-B8K-sP8DDbnSu3oWI8Q"
 
 
-##### Get project members
+##### Letters ##### 
+
+# Add your name here to sign the letter, and to cross-reference the google sheet
+your_name <- "James Mickley"
+
+
+# Invitation Letter
+invitation <- paste0("As a prominent observer or identifier of Oregon plants on iNaturalist, we are inviting you to join us at the **[Flora of Oregon: Vascular Plants](https://www.inaturalist.org/projects/flora-of-oregon-vascular-plants)** iNaturalist project, a collaboration of the [Oregon State University Herbarium](https://bpp.oregonstate.edu/herbarium), [OregonFlora](https://oregonflora.org/),and the [Native Plant Society of Oregon](https://www.npsoregon.org/).  By joining the project you will become a member of the community of naturalists advancing botanical knowledge in Oregon, and we hope that you will learn with us. Your observations and identifications are automatically included, and become research data that will help us discover, track, and conserve plants in Oregon. Your participation is greatly appreciated and a contribution to our knowledge of our state flora!
+
+To join the project, visit the [project page](https://www.inaturalist.org/projects/flora-of-oregon-vascular-plants), and click on “Join” in the upper right corner.
+
+* As you join the project, please select \"Yes\" in response to the question \"Trust this project with hidden coordinates?\" (see image below). You can choose to share coordinates for any of your observations or only for threatened species. Your observations are already automatically added to the project, but trusting our project admins with coordinates will allow more accurate mapping of species distribution for scientific study and to facilitate conservation of sensitive species.
+* We are expecting to start regular journal posts, so we hope that you also opt to receive project updates.
+* You can find more detailed information and instructions on our [about page](https://www.inaturalist.org/projects/flora-of-oregon-vascular-plants?tab=about).
+
+![Screenshot of the \"trust this project with hidden coordinates\" menu](https://lh3.googleusercontent.com/pw/ABLVV866wY9BXEycZ-afF_ShcO0GW3ZNiuRAioVG3W1InEQ9MVm_BVXQi1JNgtK-gYgJ60b0NcastdN7i2L3bERJ4FgYJCBQOlFjrEhpe1o6KpM9IyLTF9SEDBMqaO3McDjsAvo2-822t9CbjQIQMNq4v5Fd=w795)
+
+Sincerely,
+	", your_name, ", for
+
+* **The iNat Flora of Oregon Team (@mickley, @twainwright, @ribes2018, @isaacsandlin, @lindahardison, @wisel, and members of the Native Plant Society of Oregon, OregonFlora, and Oregon Department of Agriculture)**")
+
+# Welcome Letter
+welcome <- paste0("Thank you for joining the [Flora of Oregon: Vascular Plants](https://www.inaturalist.org/projects/flora-of-oregon-vascular-plants) project! Your participation is greatly  appreciated and a contribution to our knowledge of our state flora! This project is a collaboration among the <a href=\"https://bpp.oregonstate.edu/herbarium\"  target=\"_blank\">Oregon State University Herbarium</a>, <a href=\"https://oregonflora.org/\"  target=\"_blank\">OregonFlora</a>, and the <a href=\"https://www.npsoregon.org/\" target=\"_blank\">Native Plant Society of Oregon</a>.
+
+Please introduce yourself in our [Introductions](https://www.inaturalist.org/posts/83757-welcome-please-introduce-yourselves-in-the-comments) post. Would you like to help contribute? Check out our [About](https://www.inaturalist.org/projects/flora-of-oregon-vascular-plants?tab=about) page for ideas. You’ll also find instructions on how to trust our project admins with hidden coordinates there, which we hope you will do to allow scientists and OregonFlora access to your data. 
+
+Observers like you have aided us in recording hundreds of plants new to Oregon. From common to rare species, together we’ve been mapping and documenting the ranges and habits of many species for science and conservation. More than 37,000 people have contributed over 740,000 plant observations, exceeding 4,800 species; and the numbers keep growing! 
+
+As human activity profoundly alters the map of life on local and global scales, our response requires knowledge of plant distributions and habitats across vast landscapes and over long periods of time.  We cannot respond effectively to climate change, natural disasters, invasive species, and other environmental and economic threats without an in-depth understanding of our state’s natural heritage. 
+
+Here are a few resources that you may find helpful for improving your observations and knowledge for identification, and conservation: 
+
+* New to iNaturalist? Here are some [infographics](https://www.inaturalist.org/pages/getting+started), and [video tutorials](https://www.inaturalist.org/pages/video+tutorials) to get you started. 
+* Check out iNaturalist’s [Guide to Photographing Plants](https://www.inaturalist.org/guide_taxa/355708).
+* How to [improve the quality](https://www.inaturalist.org/projects/flora-of-oregon-vascular-plants/journal/80155-creating-high-quality-inaturalist-observations) of your observations. 
+* Learn about our plant species and how to identify them with [OregonFlora’s tools](https://oregonflora.org/pages/tutorials.php). 
+* Learn how to contribute as an identifier on iNaturalist with this [webinar](https://media.oregonstate.edu/media/t/1_r2ci5et0) that we produced. 
+
+
+
+We look forward to seeing all of your interesting observations! Thank you for joining us.
+
+Sincerely,
+	", your_name, ", for
+
+* **The iNat Flora of Oregon Team (@mickley, @twainwright, @ribes2018, @isaacsandlin, @lindahardison, @wisel, and members of the Native Plant Society of Oregon, OregonFlora, and Oregon Department of Agriculture)**")
+
+#########################
+
+##### Get project members #####
 members <- data.frame()
 i <- 1
 while(i > 0) {
@@ -30,7 +80,7 @@ while(i > 0) {
 members <- members %>% 
     select(created_at, user.id, user.login, user.name)
 
-##### Get top observers
+##### Get top observers #####
 
 # Get top 500 observers for the project
 fields = toRISON(list("observation_count", "species_count", 
@@ -45,7 +95,7 @@ observers <- out$results %>%
 
 observers %>% head
 
-##### Get top identifiers
+##### Get top identifiers #####
 
 fields = toRISON(list("count", "user" = list("id", "login", "name", "roles")))
 
@@ -60,7 +110,7 @@ identifiers <- out$results %>%
 identifiers %>% head
 
 
-##### Combine user lists
+##### Combine user lists #####
 
 # Combine observers and identifiers
 users <- observers %>% filter(observation_count > 500) %>%
@@ -76,7 +126,7 @@ everyone <- members %>% select(user.id, user.login, user.name) %>%
 
 everyone
 
-##### Tracking
+##### Tracking #####
 
 gsheet <- 'https://docs.google.com/spreadsheets/d/1blzZVI8RffUFvUVB3ENNJS3inmBsxXh6pdXCQizSY1Q/edit?usp=sharing'
 
@@ -89,7 +139,7 @@ outreach <- read_sheet(gsheet, sheet="primary") %>%
 
 outreach
 
-##### Get new members
+##### Get new members #####
 
 new.members <- members %>% 
     select(-created_at) %>%
@@ -111,7 +161,7 @@ new.members <- members %>%
 
 new.members   
 
-#### Welcome new members
+#### Welcome new members #####
 
 # Send messages to users
 send_message(new.members, "Welcome to Flora of Oregon: Vascular Plants", 
@@ -121,7 +171,7 @@ send_message(new.members, "Welcome to Flora of Oregon: Vascular Plants",
 # send_message(tmp, "Welcome to Flora of Oregon: Vascular Plants", 
 #              welcome, 1, nrow(tmp))
 
-#### Get invitees
+#### Get invitees #####
 
 invitees <- users %>% 
     
@@ -143,7 +193,7 @@ invitees <- users %>%
 
 invitees
 
-# specific_users <- get_users(c("kupaoa"))
+# specific_users <- get_users(c("greenbelt_land_trust"))
 # specific_users$user.name <- "Gerry Carr"
 # specific_users$first.name <- "Gerry"
 # specific_users$invite.date <- Sys.Date()
@@ -153,7 +203,7 @@ invitees
 send_message(invitees, "Invitation to join the Flora of Oregon project", 
     invitation, 1, nrow(invitees))
 
-#### Update the Google Sheet
+#### Update the Google Sheet #####
 outreach %>%
     
     # Update the username and name if we can
@@ -175,10 +225,10 @@ outreach %>%
         col_names = FALSE, reformat = FALSE)
 
 
-##### Delete old messages
+##### Delete old messages #####
 
 messages <- data.frame()
-for(i in 1:4){
+for(i in 1:20){
     
     out <- iNatAPI("GET", "v1", "messages", box = "any", threads = "true", page = i, 
         api_token)
@@ -211,7 +261,7 @@ delete_message(delete)
 
 
 ##########################
-# Invited Non-members
+# Invited Non-members #####
 
 observers %>% 
     full_join(identifiers) %>%
@@ -231,7 +281,7 @@ observers %>%
     
 
 ##########################
-# Total obs in project (according to google sheet)
+# Total obs in project (according to google sheet) #####
 
 members %>% 
     left_join(observers) %>% 
@@ -245,7 +295,7 @@ members %>%
 ##########################
     
 ##########################
-# Not sharing coords (according to google sheet)
+# Not sharing coords (according to google sheet) #####
 
 outreach %>% left_join(observers) %>% 
     filter(coords == "No", observation_count > 0) %>% 
@@ -254,7 +304,7 @@ outreach %>% left_join(observers) %>%
     data.frame()
 
 ##########################
-# Analysis of RTE species and whether we have access to coords via the project
+# Analysis of RTE species and whether we have access to coords via the project #####
 
 fields = toRISON(list("id", "taxon_geoprivacy", "obscured", "geoprivacy", 
     "positional_accuracy", "taxon" = list("name", "threatened"), 
@@ -365,7 +415,7 @@ rte.users %>%
     group_by(membership) %>%
     summarize(n = n())
 
-1# Categorize by user
+# Categorize by user
 rte.users <- rte.obs %>%
     mutate(shared = ifelse(!is.na(private_location), "shared", "withheld")) %>%
     left_join(members %>% select(created_at, user.id)) %>%
